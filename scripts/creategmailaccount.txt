@@ -1,0 +1,18 @@
+Left Click: (169, 51)
+Typed Keyboard Input: gmail.com
+Keystroke: enter
+Delay: 2.0s
+Left Click: (808, 716)
+Delay: 0.25s
+Left Click: (828, 742)
+Delay: 1s
+Data File Input: First Name
+Keystroke: tab
+Data File Input: Last Name
+Keystroke: tab
+Data File Input: Email
+Keystroke: tab
+Data File Input: Password
+Keystroke: tab
+Data File Input: Password
+Keystroke: enter

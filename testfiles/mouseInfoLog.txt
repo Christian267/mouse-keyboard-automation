@@ -1,0 +1,14 @@
+163,64		url
+341,752		create account
+353,808		for myself
+189,510		First
+349,505		Last
+186,570		username
+186,649		password
+375,646		confirm
+463,821		next
+
+1074,235	First
+1082,253	Last
+1082,275	Email
+1078,296	Phone
