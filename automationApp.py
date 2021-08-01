@@ -32,14 +32,14 @@ class AutomationApp(QDialog):
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
         self.setWindowIcon(appIcon)
         
-    def closeEvent(self, event: QCloseEvent):
-        reply = QMessageBox.question(self, 'Message', 'Are you sure you want to quit?',
-                                    QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+    # def closeEvent(self, event: QCloseEvent):
+    #     reply = QMessageBox.question(self, 'Message', 'Are you sure you want to quit?',
+    #                                 QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
-        if reply == QMessageBox.Yes:
-            event.accept()
-        else:
-            event.ignore()
+    #     if reply == QMessageBox.Yes:
+    #         event.accept()
+    #     else:
+    #         event.ignore()
 
 class TabCreate(QWidget):
     """
@@ -50,12 +50,15 @@ class TabCreate(QWidget):
         self.setup()
         
     def setup(self):
+        """
+        Build and organize the widgets within the "Create Script" tab.
+        """
         self.listWidget()
-        self.addMouseClickButton()
-        self.addTextInputButton()
-        self.addKeyboardInputButton()
+        self.mouseClickButton()
+        self.dataEntryButton()
+        self.typedTextButton()
         self.deleteInputButton()
-        self.addDelayButton()
+        self.delayButton()
         self.saveScriptButton()
         windowLayout = QGridLayout()
         vBox = QVBoxLayout()
@@ -71,25 +74,25 @@ class TabCreate(QWidget):
         windowLayout.addWidget(self.listW, 0, 1)
         self.setLayout(windowLayout)     
 
-    def addTextInputButton(self):
+    def dataEntryButton(self):
         self.btn_text = QPushButton('Data Entry/Keystrokes', self)
-        self.btn_text.clicked.connect(self.launch_textpopup)
+        self.btn_text.clicked.connect(self.launch_dataEntryPopup)
         self.btn_text.setFixedSize(130, 30)
         self.btn_text.move(50, 50)
 
-    def addKeyboardInputButton(self):
+    def typedTextButton(self):
         self.btn_keyboard = QPushButton('Typed Keyboard Text', self)
-        self.btn_keyboard.clicked.connect(self.launch_keyboardpopup)
+        self.btn_keyboard.clicked.connect(self.launch_typedTextPopup)
         self.btn_keyboard.setFixedSize(130, 30)
         self.btn_keyboard.move(50, 50)
 
-    def addMouseClickButton(self):
+    def mouseClickButton(self):
         self.btn_mouse = QPushButton('Mouse Left Click', self)
-        self.btn_mouse.clicked.connect(self.launch_mousepopup)
+        self.btn_mouse.clicked.connect(self.launch_mouseClickPopup)
         self.btn_mouse.setFixedSize(130, 30)
         self.btn_mouse.move(50, 20)
 
-    def addDelayButton(self):
+    def delayButton(self):
         self.btn_delay = QPushButton('Delay', self)
         self.btn_delay.clicked.connect(self.launch_delaypopup)
         self.btn_delay.setFixedSize(130, 30)
@@ -103,7 +106,7 @@ class TabCreate(QWidget):
     
     def saveScriptButton(self):
         self.btn_save = QPushButton('Save Script', self)
-        self.btn_save.clicked.connect(self.launch_savepopup)
+        self.btn_save.clicked.connect(self.launch_saveScriptPopup)
         self.btn_save.setFixedSize(130, 30)
         self.btn_save.move(50, 50)
 
@@ -113,38 +116,50 @@ class TabCreate(QWidget):
         self.listW.resize(280, 390)
         self.listW.move(180, 20)
 
-    def addToListTextInput(self, entry):
+    def addToListDataEntry(self, entry):
         if entry[0:9] == 'Keystroke':
             self.listW.addItem(entry)
         else:
             self.listW.addItem(f'Data File Input: {entry}')
 
-    def addToListKeyboard(self, entry):
+    def addToListTypedText(self, entry):
         self.listW.addItem(f'Typed Keyboard Input: {entry}')
+
+    def addToListMouseClick(self):
+        position = pyautogui.position()
+        self.listW.addItem(f'Left Click: ({position[0]}, {position[1]})')
 
     def addToListDelay(self, entry):
         self.listW.addItem(f'Delay: {entry}s')
-
-    def addToListMouse(self):
-        position = pyautogui.position()
-        self.listW.addItem(f'Left Click: ({position[0]}, {position[1]})')
 
     def deleteListEntry(self):
         item = self.listW.row(self.listW.currentItem())
         self.listW.takeItem(item)
 
-    def launch_textpopup(self):
+    def launch_dataEntryPopup(self):
+        """
+        Popup window that launches when the 'Data Entry/Keystrokes' button is pressed. The user may select from the the dropdown list of
+        what data or keystrokes they want to recorded.
+        """
         items = ['First Name', 'Last Name', 'Email', 'Phone', 'Branch', 'Title', 'Password', 'Keystroke: enter', 'Keystroke: tab']
         item, ok = QInputDialog.getItem(self, 'Data Entry & Keystroke Inputs', 'Choose a data entry or keystroke', items, 0, False)
         if ok and item:
-            self.addToListTextInput(item)
+            self.addToListDataEntry(item)
 
-    def launch_keyboardpopup(self):
+    def launch_typedTextPopup(self):
+        """
+        Popup window that launches when the 'typedTextPopup' button is pressed. The user may type any text they want directly reproduced by the 
+        script.
+        """
         text, ok = QInputDialog.getText(self, 'Typed Text Input', 'Type any text here (e.g. website name)')
         if ok and text:
-            self.addToListKeyboard(text)
+            self.addToListTypedText(text)
 
-    def launch_mousepopup(self):
+    def launch_mouseClickPopup(self):
+        """
+        Popup window that launches when the 'Mouse Left Click' button is pressed. By pressing the 'Record', the current mouse coordinates
+        will be saved onto the current list widget.
+        """
         dialog = QDialog(self)
         label = QLabel(self)
         label.setFrameStyle(QFrame.Panel | QFrame.Sunken)
@@ -158,9 +173,13 @@ class TabCreate(QWidget):
         dialog.setLayout(layout)
         btn_record.clicked.connect(dialog.accept)
         if dialog.exec() == QDialog.Accepted:
-            self.addToListMouse()
+            self.addToListMouseClick()
 
-    def launch_savepopup(self):
+    def launch_saveScriptPopup(self):
+        """
+        Popup window that launches when the 'Save Script' button is pressed. This will save the current list of commands in the list widget onto a .txt
+        with the name filled into the input dialog.
+        """
         scripts_dirpath = os.path.join(os.getcwd(), 'scripts')
         items = [self.listW.item(x).text() for x in range(self.listW.count())]
         text, ok = QInputDialog.getText(self, 'Save Script', 'Script Name:')
@@ -174,6 +193,11 @@ class TabCreate(QWidget):
                     saveScript(items, text)
 
     def launch_duplicateWarning(self, items, scriptName):
+        """
+        Popup window that launches when the when another file shares the name currently trying to be saved from the saveScriptPopup. Warns user about duplicate
+        and asks if the user would like to overwrite the file.
+        param items: list scriptName: str
+        """
         warningDialog = QMessageBox()
         warningDialog.setWindowTitle('Overwrite Warning')
         warningDialog.setText(f'A file with the name {scriptName}.txt already exists, do you want to replace it?')
@@ -199,6 +223,9 @@ class TabRun(QWidget):
         self.setup()
         
     def setup(self):
+        """
+        Build and organize the widgets within the "Run Script" tab.
+        """
         self.dirpath = os.path.join(os.getcwd(), 'scripts')
         self.treeWidget()
         self.runScriptButton()
@@ -211,13 +238,13 @@ class TabRun(QWidget):
 
     def runScriptButton(self):
         self.btn_run = QPushButton('Run', self)
-        self.btn_run.clicked.connect(self.launch_runpopup)
+        self.btn_run.clicked.connect(self.launch_runPopup)
         self.btn_run.setFixedHeight(35)
         self.btn_run.move(50, 20)
 
     def deleteScriptButton(self):
         self.btn_delete = QPushButton('Delete', self)
-        self.btn_delete.clicked.connect(self.launch_deletepopup)
+        self.btn_delete.clicked.connect(self.launch_deletePopup)
         self.btn_delete.setFixedHeight(35)
         self.btn_delete.move(50, 100)
 
@@ -235,12 +262,10 @@ class TabRun(QWidget):
         self.tree.setWindowTitle("Dir View")
         self.tree.resize(100, 100)
     
-    def handleRunScriptClick(self):
-        index = self.tree.currentIndex()
-        scriptName = self.model.fileName(index)
-        runScript(scriptName)
-
-    def launch_deletepopup(self):
+    def launch_deletePopup(self):
+        """
+        Popup window that launches when the 'delete' button is pressed. Asks user for confirmation of deleting a script file.
+        """
         deleteMessage = QMessageBox()
         deleteMessage.setWindowTitle('Deleting Script')
         deleteMessage.setText('Are you sure you want to delete this script?')
@@ -253,7 +278,11 @@ class TabRun(QWidget):
             scriptName = self.model.fileName(index)
             deleteScript(scriptName)
 
-    def launch_runpopup(self):
+    def launch_runPopup(self):
+        """
+        Popup window that launches when the 'Run' button is pressed. The currently selected script on the treewidget will run. The popup prompts the user
+        to select a data file from which the script will copy its data entries.
+        """
         data_dirpath = os.path.join(os.getcwd(), 'data')
         file_filter = 'Data File (*.xlsx *.csv *.dat);; Excel File (*.xlsx *.xls)'
         response = QFileDialog.getOpenFileName(
@@ -262,7 +291,8 @@ class TabRun(QWidget):
             dir=data_dirpath,
             filter=file_filter,
             selectedFilter='Data File (*.xlsx *.csv *.dat)'
-        )        
-        index = self.tree.currentIndex()
-        scriptName = self.model.fileName(index)
-        runScript(scriptName, response[0])
+        )
+        if response[0]:        
+            index = self.tree.currentIndex()
+            scriptName = self.model.fileName(index)
+            runScript(scriptName, response[0])
