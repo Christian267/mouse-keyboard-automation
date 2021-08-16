@@ -5,7 +5,8 @@ import pandas
 def saveScript(actions, scriptName):
     """
     Saves the commands from the list widget from the automation app to a .txt file in the relative directory /data
-    :param actions: list scriptName: str
+    :param actions: list 
+    :param scriptName: str
     :return: None
     """
     file_path = os.path.join('scripts', scriptName)
@@ -24,7 +25,7 @@ def saveScript(actions, scriptName):
     output.close()
     return True
 
-def runScript(scriptName, dataFile=None):
+def runScript(scriptName, dataFile):
     """
     Reads the given .txt file and runs the commands in order using pyautogui
     :param scriptName: str
@@ -34,24 +35,24 @@ def runScript(scriptName, dataFile=None):
     script = open(file_path, 'r')
     actions = script.read().split('\n')
     delay = 0 
-    for action in actions:
-        if action[0:2] == 'De':
-            delay = handleDelay(action)
+    if actions[0]:
+        for action in actions:
+            if action[0:2] == 'De':
+                delay = handleDelay(action)
 
-        elif action[0] == 'L':
-            handleClick(action, delay)
-            delay = 0
+            elif action[0] == 'L':
+                handleClick(action, delay)
+                delay = 0
 
-        elif action[0] == 'K' or action[0] == 'T':
-            time.sleep(delay)
-            delay = 0
-            handleKeyboardInput(action)
+            elif action[0] == 'K' or action[0] == 'T':
+                time.sleep(delay)
+                delay = 0
+                handleKeyboardInput(action)
 
-        elif action[0:2] == 'Da':
-            time.sleep(delay)
-            delay = 0
-            handleDataEntry(action, dataFile)
-
+            elif action[0:2] == 'Da':
+                time.sleep(delay)
+                delay = 0
+                handleDataEntry(action, dataFile)
 
         
 

@@ -196,7 +196,8 @@ class TabCreate(QWidget):
         """
         Popup window that launches when the when another file shares the name currently trying to be saved from the saveScriptPopup. Warns user about duplicate
         and asks if the user would like to overwrite the file.
-        param items: list scriptName: str
+        :param items: list 
+        :param scriptName: str
         """
         warningDialog = QMessageBox()
         warningDialog.setWindowTitle('Overwrite Warning')
