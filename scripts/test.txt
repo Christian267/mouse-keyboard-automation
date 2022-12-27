@@ -1,0 +1,2 @@
+Left Click: (444, 705)
+Keystroke: ctrl + x

@@ -1,5 +1,5 @@
 import pyautogui
-import sys, os, time
+import os, time
 import pandas
 
 def saveScript(actions, scriptName):
@@ -37,19 +37,19 @@ def runScript(scriptName, dataFile):
     delay = 0 
     if actions[0]:
         for action in actions:
-            if action[0:2] == 'De':
+            if action.startswith('Delay'):
                 delay = handleDelay(action)
 
-            elif action[0] == 'L':
+            elif action.startswith('Left Click'):
                 handleClick(action, delay)
                 delay = 0
 
-            elif action[0] == 'K' or action[0] == 'T':
+            elif action.startswith('Keystroke') or action.startswith('Type Keyboard Input'):
                 time.sleep(delay)
                 delay = 0
                 handleKeyboardInput(action)
 
-            elif action[0:2] == 'Da':
+            elif action.startswith('Data Entry'):
                 time.sleep(delay)
                 delay = 0
                 handleDataEntry(action, dataFile)
@@ -92,13 +92,18 @@ def handleKeyboardInput(action):
     :param action: str
     :return: None
     """
-
-    if action[0] == 'K':
-        entry = action[11:]
-        pyautogui.press(entry)
+    if action.startswith('Keystroke:'):
+        entry = action[len('Keystroke: '):]
+        keys = []
+        for item in entry.split():
+            if item != '+':
+                keys.append(item)
+        print(keys)
+        pyautogui.hotkey(*keys)
     else:
         entry = action[22:]
         pyautogui.write(entry)
+
 
 
 def handleDelay(action):

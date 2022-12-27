@@ -1,0 +1,3 @@
+pandas
+pyautogui
+pyside6

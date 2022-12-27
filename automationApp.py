@@ -2,7 +2,7 @@ from scriptHandling import deleteScript, runScript, saveScript
 import pyautogui, os
 from PySide6.QtWidgets import (QDialog, QFileDialog, QFrame, QLabel, QWidget, QPushButton, QGridLayout,
  QMessageBox, QListWidget, QInputDialog, QTabWidget, QVBoxLayout, QFileSystemModel, QTreeView)
-from PySide6.QtGui import QCloseEvent, QIcon
+from PySide6.QtGui import QIcon
 import ctypes
 
 class AutomationApp(QDialog):
@@ -32,15 +32,6 @@ class AutomationApp(QDialog):
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
         self.setWindowIcon(appIcon)
         
-    # def closeEvent(self, event: QCloseEvent):
-    #     reply = QMessageBox.question(self, 'Message', 'Are you sure you want to quit?',
-    #                                 QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-
-    #     if reply == QMessageBox.Yes:
-    #         event.accept()
-    #     else:
-    #         event.ignore()
-
 class TabCreate(QWidget):
     """
     Container class for the widgets found in the create script tab.
@@ -56,6 +47,7 @@ class TabCreate(QWidget):
         self.listWidget()
         self.mouseClickButton()
         self.dataEntryButton()
+        self.keystrokeButton()
         self.typedTextButton()
         self.deleteInputButton()
         self.delayButton()
@@ -66,6 +58,7 @@ class TabCreate(QWidget):
         windowLayout.setColumnMinimumWidth(0, 130)
         vBox.addWidget(self.btn_mouse)
         vBox.addWidget(self.btn_text)
+        vBox.addWidget(self.btn_keystrokes)
         vBox.addWidget(self.btn_keyboard)
         vBox.addWidget(self.btn_delay)
         vBox.addWidget(self.btn_delete)
@@ -85,6 +78,12 @@ class TabCreate(QWidget):
         self.btn_keyboard.clicked.connect(self.launch_typedTextPopup)
         self.btn_keyboard.setFixedSize(130, 30)
         self.btn_keyboard.move(50, 50)
+
+    def keystrokeButton(self):
+        self.btn_keystrokes = QPushButton('Keystrokes', self)
+        self.btn_keystrokes.clicked.connect(self.launch_keystrokePopup)
+        self.btn_keystrokes.setFixedSize(130, 30)
+        self.btn_keystrokes.move(50, 20)
 
     def mouseClickButton(self):
         self.btn_mouse = QPushButton('Mouse Left Click', self)
@@ -117,10 +116,10 @@ class TabCreate(QWidget):
         self.listW.move(180, 20)
 
     def addToListDataEntry(self, entry):
-        if entry[0:9] == 'Keystroke':
-            self.listW.addItem(entry)
-        else:
-            self.listW.addItem(f'Data File Input: {entry}')
+        self.listW.addItem(f'Data Entry: {entry}')
+
+    def addToListKeystrokeEntry(self, entry):
+            self.listW.addItem(f'Keystroke: {entry}')
 
     def addToListTypedText(self, entry):
         self.listW.addItem(f'Typed Keyboard Input: {entry}')
@@ -138,13 +137,23 @@ class TabCreate(QWidget):
 
     def launch_dataEntryPopup(self):
         """
-        Popup window that launches when the 'Data Entry/Keystrokes' button is pressed. The user may select from the the dropdown list of
+        Popup window that launches when the 'Data Entry' button is pressed. The user may select from the the dropdown list of
         what data or keystrokes they want to recorded.
         """
-        items = ['First Name', 'Last Name', 'Email', 'Phone', 'Branch', 'Title', 'Password', 'Keystroke: enter', 'Keystroke: tab']
+        items = ['First Name', 'Last Name', 'Email', 'Phone', 'Branch', 'Title', 'Password']
         item, ok = QInputDialog.getItem(self, 'Data Entry & Keystroke Inputs', 'Choose a data entry or keystroke', items, 0, False)
         if ok and item:
             self.addToListDataEntry(item)
+
+    def launch_keystrokePopup(self):
+        """
+        Popup window that launches when the 'Keystrokes' button is pressed. The user may select from the the dropdown list of
+        what keystrokes they want to recorded.
+        """
+        items = ['enter', 'tab', 'ctrl + v', 'ctrl + x']
+        item, ok = QInputDialog.getItem(self, 'Keystroke Inputs', 'Choose a data entry or keystroke', items, 0, False)
+        if ok and item:
+            self.addToListKeystrokeEntry(item)
 
     def launch_typedTextPopup(self):
         """
